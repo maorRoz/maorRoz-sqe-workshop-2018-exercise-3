@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    
+        <meta charset="UTF-8">
+
+        <style>
+            table {
+                width: 100%;
+                height: 100%;
+            }
+            .textAreaWrapper {
+                width: 100%;
+                height: 40vh;
+            }
+            .textAreaArguments {
+                width: 100%;
+                height: 2vh;
+            }
+            textarea {
+                width: 80%;
+                height: 95%;
+            }
+            #elementsTable {
+                font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+
+            #elementsTable td, #elementsTable th {
+                border: 1px solid #ddd;
+                padding: 8px;
+            }
+
+            #codeLine {
+                display: block;
+            }
+
+            #elementsTable tr:nth-child(even){background-color: #f2f2f2;}
+
+            #elementsTable tr:hover {background-color: #ddd;}
+
+            #elementsTable th {
+                padding-top: 12px;
+                padding-bottom: 12px;
+                text-align: left;
+                background-color: #4CAF50;
+                color: white;
+            }
+        </style>
+    </head>
+    <body>
+        <table>
+            <tr>
+                <td>
+                    <div>
+                        <label>Enter function declaration here</label>
+                    </div>
+                </td>
+                <td>
+                    <div>
+                        <label>Parsed function here</label>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="textAreaWrapper">
+                        <textarea id="codePlaceholder" title="Enter function declaration here"></textarea>
+                    </div>
+                </td>
+                <td>
+                    <div class="textAreaWrapper">
+                        <code id="parsedCode" title="Parsed function here"></code>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div>
+                        <label>Enter function arguments here</label>
+                    </div>
+                </td>
+                <tr>
+                    <td>
+                        <div class="textAreaArguments">
+                            <textarea id="argumentsLine" title="Enter function arguments here"></textarea>
+                        </div>
+                    </td>
+                    <td></td>
+                </tr>
+            </tr>
+            <tr>
+                <td>
+                    <div>
+                        <button id="codeSubmissionButton">Parse Code</button>
+                    </div>
+                </td>
+                <td>
+                </td>
+            </tr>
+        </table>
+
+        <script src="dist/bundle.js"></script>
+    </body>
+</html>
