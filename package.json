@@ -19,7 +19,7 @@
   "bugs": {
     "url": "https://github.com/maorRoz/maorroz-sqe-workshop-2018-exercise-3/issues"
   },
-  "nyc":{
+  "nyc": {
     "include": [
       "src"
     ]
@@ -36,5 +36,8 @@
     "nyc": "^13.1.0",
     "webpack": "^4.20.2",
     "webpack-cli": "^3.1.1"
+  },
+  "dependencies": {
+    "esgraph": "^0.3.0"
   }
 }

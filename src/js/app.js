@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import esgraph from 'esgraph';
 import {parseCode} from './code-analyzer';
 import { createMethodAndArguments } from './controller/elementsTableController'; 
 import  createOutputFunction from './view/view';
@@ -21,9 +22,12 @@ $(document).ready(function () {
     $('#codeSubmissionButton').click(() => {
         const codeToParse = $('#codePlaceholder').val();
         const parsedCode = parseCode(codeToParse);
-        const method = createMethodAndArguments(parsedCode);
-        const argumentsValues = argumentsTextIntoValues();
-        $('#parsedCode #codeLine' ).remove();
-        createOutputFunction($('#parsedCode'));
+        const cfg = esgraph(parsedCode);
+        const dot = esgraph.dot(cfg, { counter: 0, source: parsedCode });
+        console.log(dot);
+     //   const method = createMethodAndArguments(parsedCode);
+     //   const argumentsValues = argumentsTextIntoValues();
+     //   $('#parsedCode #codeLine' ).remove();
+     //   createOutputFunction($('#parsedCode'));
     });
 });
