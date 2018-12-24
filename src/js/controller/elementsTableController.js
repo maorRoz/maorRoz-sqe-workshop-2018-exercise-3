@@ -89,9 +89,11 @@ const elementTabler = (object) =>
 
 const bodyTabler = (parsedCodeBody) => parsedCodeBody.length > 0 ? elementTabler(parsedCodeBody[0]) : null;
 
-export const createMethodAndArguments = (parsedCode) => {
+const createMethodAndArguments = (parsedCode) => {
     functionTableModel = undefined;
     const { body } = parsedCode;
     bodyTabler(body);
     return functionTableModel;
 };
+
+export default createMethodAndArguments;

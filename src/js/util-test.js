@@ -1,5 +1,5 @@
 import { parseCode } from './code-analyzer';
-import { createMethodAndArguments } from './controller/elementsTableController';
+import createMethodAndArguments from './controller/elementsTableController';
 
 export const makeTestableFunction = (code) => {
     const parsedCode = parseCode(code);

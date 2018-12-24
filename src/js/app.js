@@ -1,8 +1,9 @@
 import $ from 'jquery';
-import esgraph from 'esgraph';
 import {parseCode} from './code-analyzer';
-import { createMethodAndArguments } from './controller/elementsTableController'; 
-import  createOutputFunction from './view/view';
+import createMethodAndArguments from './controller/elementsTableController';
+import codeToNodeSystem from './controller/nodeSystemControler';
+import toEvalNodeSystem from './controller/evaluator';
+import  buildGraph from './view/view';
 
 const argumentsTextIntoValues = () => {
     const argumentsText = $('#argumentsLine').val().split(/(?![^)(]*\([^)(]*?\)\)),(?![^[]*\])/);
@@ -20,14 +21,13 @@ const argumentsTextIntoValues = () => {
 
 $(document).ready(function () {
     $('#codeSubmissionButton').click(() => {
+        const d3 = require('d3-graphviz');
         const codeToParse = $('#codePlaceholder').val();
         const parsedCode = parseCode(codeToParse);
-        const cfg = esgraph(parsedCode);
-        const dot = esgraph.dot(cfg, { counter: 0, source: parsedCode });
-        console.log(dot);
-     //   const method = createMethodAndArguments(parsedCode);
-     //   const argumentsValues = argumentsTextIntoValues();
-     //   $('#parsedCode #codeLine' ).remove();
-     //   createOutputFunction($('#parsedCode'));
+        global.method = createMethodAndArguments(parsedCode);
+        global.nodeSystem = codeToNodeSystem(global.method);
+        const argumentsValues = argumentsTextIntoValues();
+        global.evaluatedNodeSystem = toEvalNodeSystem(global.nodeSystem, argumentsValues);
+        buildGraph(global.evaluatedNodeSystem);
     });
 });
