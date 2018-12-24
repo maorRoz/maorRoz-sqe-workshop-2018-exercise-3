@@ -21,7 +21,6 @@ const argumentsTextIntoValues = () => {
 
 $(document).ready(function () {
     $('#codeSubmissionButton').click(() => {
-        const d3 = require('d3-graphviz');
         const codeToParse = $('#codePlaceholder').val();
         const parsedCode = parseCode(codeToParse);
         global.method = createMethodAndArguments(parsedCode);
