@@ -1,0 +1,18 @@
+language: node_js
+
+node_js:
+  - 10
+  - node
+
+cache: yarn
+
+script:
+  - yarn install
+  - yarn coverage
+  - yarn lint
+
+notifications:
+  email:
+    recipients:
+      - andory@post.bgu.ac.il
+    on_failure: always
