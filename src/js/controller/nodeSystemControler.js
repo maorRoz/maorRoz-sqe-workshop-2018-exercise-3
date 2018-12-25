@@ -4,7 +4,11 @@ import NodeTest from '../model/NodeTest';
 
 const handleIf = () => null;
 const handleWhile = () => null;
-const handleReturn = () => null;
+const handleReturn = (nodeIndex, statement) => {
+    const returnBody = statement.toString();
+    const returnNode =  new NodeBody(nodeIndex, [returnBody], nodeIndex + 1);
+    return [returnNode];
+};
 
 const typeCodeToParse = {
     ifStatement: handleIf,

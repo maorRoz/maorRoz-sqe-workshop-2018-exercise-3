@@ -11,6 +11,6 @@ export default class ReturnLine extends Line{
     }
 
     toString(){
-        `retrun ${this.lineValue}`;
+        return `return ${this.lineValue}`;
     }
 }
