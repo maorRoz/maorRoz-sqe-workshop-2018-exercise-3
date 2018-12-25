@@ -2090,7 +2090,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _mod
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\nconst toEvalNodeSystem = () => null;\r\n\r\n/* harmony default export */ __webpack_exports__[\"default\"] = (toEvalNodeSystem);\n\n//# sourceURL=webpack:///./src/js/controller/evaluator.js?");
+eval("__webpack_require__.r(__webpack_exports__);\nconst toEvalNodeSystem = (nodeSystem, argumentsValues) => {\r\n    return nodeSystem;\r\n};\r\n\r\n/* harmony default export */ __webpack_exports__[\"default\"] = (toEvalNodeSystem);\n\n//# sourceURL=webpack:///./src/js/controller/evaluator.js?");
 
 /***/ }),
 
@@ -2102,7 +2102,7 @@ eval("__webpack_require__.r(__webpack_exports__);\nconst toEvalNodeSystem = () =
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\nconst codeToNodeSystem = () => null;\r\n\r\n/* harmony default export */ __webpack_exports__[\"default\"] = (codeToNodeSystem);\n\n//# sourceURL=webpack:///./src/js/controller/nodeSystemControler.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _model_NodeBody__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../model/NodeBody */ \"./src/js/model/NodeBody.js\");\n/* harmony import */ var _model_NodeTest__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../model/NodeTest */ \"./src/js/model/NodeTest.js\");\n\r\n\r\n\r\n\r\nconst handleIf = () => null;\r\nconst handleWhile = () => null;\r\nconst handleReturn = () => null;\r\n\r\nconst typeCodeToParse = {\r\n    ifStatement: handleIf,\r\n    whileStatement: handleWhile,\r\n    returnStatement: handleReturn\r\n};\r\n\r\nconst subtituteExpression = (expression, locals) => {\r\n    const variables = expression.split(/>|<|!==|===|==|]|[[()+-/*]/);\r\n    variables.forEach(variable => {\r\n        const existLocal = locals.find(local => local.name === variable);\r\n        expression = existLocal ? expression\r\n            .replace(new RegExp(variable, 'g'), `(${existLocal.value})`) : expression;\r\n    });\r\n\r\n    return expression;\r\n};\r\n\r\nconst modifyLocalArray = (local, index, value) => {\r\n    const arrayWithNoBrackets = local.value.replace(/\\[|\\]/g,'');\r\n    const arrayValues = arrayWithNoBrackets.split(',');\r\n    arrayValues[index] = value;\r\n    local.value = `[${arrayValues.join()}]`;\r\n    return local;\r\n};\r\n\r\nconst newLocalCreation = (assignment, locals) => {\r\n    if(assignment.lineName.includes('[')){\r\n        const nameWithoutArrayIndex = assignment.lineName.replace(/\\[.*\\]/g,'');\r\n        const indexWithoutName = assignment.lineName.replace(/.*\\[|\\]/g, '');\r\n        const evaluatedIndex = JSON.parse(subtituteExpression(indexWithoutName, locals));\r\n        const local = locals.find(local => local.name === nameWithoutArrayIndex);\r\n        const modifiedLocalArray = modifyLocalArray(local, evaluatedIndex, assignment.lineValue);\r\n        return modifiedLocalArray ;\r\n    }\r\n    return { name: assignment.lineName, value: assignment.lineValue };\r\n};\r\n\r\nconst handleAssignment = (assignment, locals) => {\r\n    const extendedLocals = locals.filter(local => local.name !== assignment.lineName && local.name !== assignment.lineName.replace(/\\[.*\\]/g,''));\r\n\r\n    const newLocal = newLocalCreation(assignment, locals);\r\n    extendedLocals.push(newLocal);\r\n    return extendedLocals;\r\n};\r\n\r\nconst getNextNodes = (nodeIndex, body, index, locals, next) => {\r\n    if(!index){\r\n        return handleBody(nodeIndex, next, locals);\r\n    } \r\n\r\n    const nextNodeBody = body[index];\r\n    const handler = typeCodeToParse[nextNodeBody.lineType];\r\n    return handler(nodeIndex, nextNodeBody, locals, body.slice(index).concat(next));\r\n};\r\n\r\nconst handleBody = (nodeIndex, body, locals, next) => {\r\n    if(!body && !next){\r\n        return [];\r\n    }\r\n    const nodeBody = [];\r\n    let nextNodeBodyIndex;\r\n    body.every((statement, index) => {\r\n        if(statement.lineType === 'assignmentExpression'){\r\n            const extendedLocals = handleAssignment(statement, locals);\r\n            locals = extendedLocals;\r\n            return nodeBody.push(statement.toString());\r\n        } else {\r\n            nextNodeBodyIndex = index;\r\n            return false;\r\n        }\r\n    });\r\n    const node = new _model_NodeBody__WEBPACK_IMPORTED_MODULE_0__[\"default\"](nodeIndex, nodeBody, nodeIndex + 1, locals);\r\n    const nextNodes = getNextNodes(nodeIndex + 1, body, nextNodeBodyIndex, locals, next);\r\n    return [node, ...nextNodes];\r\n};\r\n\r\nconst codeToNodeSystem = (method) => {\r\n    const locals = [];\r\n    const nodeSystem = handleBody(1, method.lineBody, locals);\r\n    return nodeSystem;\r\n};\r\n\r\n/* harmony default export */ __webpack_exports__[\"default\"] = (codeToNodeSystem);\n\n//# sourceURL=webpack:///./src/js/controller/nodeSystemControler.js?");
 
 /***/ }),
 
@@ -2114,7 +2114,7 @@ eval("__webpack_require__.r(__webpack_exports__);\nconst codeToNodeSystem = () =
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return AssignmentLine; });\n/* harmony import */ var _Line__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Line */ \"./src/js/model/Line.js\");\n/* harmony import */ var _valueExtractor__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../valueExtractor */ \"./src/js/valueExtractor.js\");\n\r\n\r\n\r\nconst type = 'assignmentExpression';\r\n\r\nclass AssignmentLine extends _Line__WEBPACK_IMPORTED_MODULE_0__[\"default\"] {\r\n    constructor(expression){\r\n        const { left , right} = expression;\r\n        super(type);\r\n        this.lineName = Object(_valueExtractor__WEBPACK_IMPORTED_MODULE_1__[\"extractValue\"])(left);\r\n        this.lineValue = Object(_valueExtractor__WEBPACK_IMPORTED_MODULE_1__[\"extractValue\"])(right);\r\n        \r\n    }\r\n}\n\n//# sourceURL=webpack:///./src/js/model/AssignmentLine.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return AssignmentLine; });\n/* harmony import */ var _Line__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Line */ \"./src/js/model/Line.js\");\n/* harmony import */ var _valueExtractor__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../valueExtractor */ \"./src/js/valueExtractor.js\");\n\r\n\r\n\r\nconst type = 'assignmentExpression';\r\n\r\nclass AssignmentLine extends _Line__WEBPACK_IMPORTED_MODULE_0__[\"default\"] {\r\n    constructor(expression){\r\n        const { left , right} = expression;\r\n        super(type);\r\n        this.lineName = Object(_valueExtractor__WEBPACK_IMPORTED_MODULE_1__[\"extractValue\"])(left);\r\n        this.lineValue = Object(_valueExtractor__WEBPACK_IMPORTED_MODULE_1__[\"extractValue\"])(right);\r\n        \r\n    }\r\n\r\n    toString(){\r\n        const value = this.lineValue ? ` = ${this.lineValue};` : ';';\r\n        return `${this.lineName}${value}`;\r\n    }\r\n}\n\n//# sourceURL=webpack:///./src/js/model/AssignmentLine.js?");
 
 /***/ }),
 
@@ -2126,7 +2126,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return ElseIfLine; });\n/* harmony import */ var _IfLine__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./IfLine */ \"./src/js/model/IfLine.js\");\n\r\n\r\nconst type = 'elseIfStatement';\r\n\r\nclass ElseIfLine extends _IfLine__WEBPACK_IMPORTED_MODULE_0__[\"default\"]{\r\n    constructor(statement, body, alternate){\r\n        super(statement, body, alternate);\r\n        this.lineType = type;\r\n    }\r\n}\n\n//# sourceURL=webpack:///./src/js/model/ElseIfLine.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return ElseIfLine; });\n/* harmony import */ var _IfLine__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./IfLine */ \"./src/js/model/IfLine.js\");\n\r\n\r\nconst type = 'elseIfStatement';\r\n\r\nclass ElseIfLine extends _IfLine__WEBPACK_IMPORTED_MODULE_0__[\"default\"]{\r\n    constructor(statement, body, alternate){\r\n        super(statement, body, alternate);\r\n        this.lineType = type;\r\n    }\r\n\r\n    toString(){\r\n        return this.lineCondition;\r\n    }\r\n}\n\n//# sourceURL=webpack:///./src/js/model/ElseIfLine.js?");
 
 /***/ }),
 
@@ -2162,7 +2162,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return IfLine; });\n/* harmony import */ var _Line__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Line */ \"./src/js/model/Line.js\");\n/* harmony import */ var _valueExtractor__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../valueExtractor */ \"./src/js/valueExtractor.js\");\n\r\n\r\n\r\nconst type = 'ifStatement';\r\n\r\nclass IfLine extends _Line__WEBPACK_IMPORTED_MODULE_0__[\"default\"]{\r\n    constructor(statement, body, alternate){\r\n        const { test } = statement;\r\n        super(type);\r\n        this.lineCondition = Object(_valueExtractor__WEBPACK_IMPORTED_MODULE_1__[\"extractValue\"])(test);\r\n        this.lineBody = body;\r\n        this.alternate = alternate;\r\n    }\r\n}\n\n//# sourceURL=webpack:///./src/js/model/IfLine.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return IfLine; });\n/* harmony import */ var _Line__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Line */ \"./src/js/model/Line.js\");\n/* harmony import */ var _valueExtractor__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../valueExtractor */ \"./src/js/valueExtractor.js\");\n\r\n\r\n\r\nconst type = 'ifStatement';\r\n\r\nclass IfLine extends _Line__WEBPACK_IMPORTED_MODULE_0__[\"default\"]{\r\n    constructor(statement, body, alternate){\r\n        const { test } = statement;\r\n        super(type);\r\n        this.lineCondition = Object(_valueExtractor__WEBPACK_IMPORTED_MODULE_1__[\"extractValue\"])(test);\r\n        this.lineBody = body;\r\n        this.alternate = alternate;\r\n    }\r\n\r\n    toString(){\r\n        return this.lineCondition;\r\n    }\r\n}\n\n//# sourceURL=webpack:///./src/js/model/IfLine.js?");
 
 /***/ }),
 
@@ -2178,6 +2178,42 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 
 /***/ }),
 
+/***/ "./src/js/model/Node.js":
+/*!******************************!*\
+  !*** ./src/js/model/Node.js ***!
+  \******************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return Node; });\nclass Node{\r\n    constructor(index, body, env){\r\n        this.index = index;\r\n        this.body = body;\r\n        this.env = env;\r\n        this.toColor = false;\r\n    }\r\n\r\n    toTest(){\r\n        return true;\r\n    }\r\n\r\n    toString(){\r\n        const toFillColor = this.toColor ? 'fillcolor=\"#32CD32\"' : '';\r\n        return `${this.index}[label=\"${this.body.join('\\n')}\" ${toFillColor}];`;\r\n    }\r\n\r\n}\n\n//# sourceURL=webpack:///./src/js/model/Node.js?");
+
+/***/ }),
+
+/***/ "./src/js/model/NodeBody.js":
+/*!**********************************!*\
+  !*** ./src/js/model/NodeBody.js ***!
+  \**********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return NodeBody; });\n/* harmony import */ var _Node__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Node */ \"./src/js/model/Node.js\");\n\r\n\r\nclass NodeBody extends _Node__WEBPACK_IMPORTED_MODULE_0__[\"default\"] {\r\n    constructor(index, body, next, env){\r\n        super(index, body, env);\r\n        this.next = next;\r\n    }\r\n\r\n    edges(){\r\n        return `${this.index} -> ${this.next};`;\r\n    }\r\n\r\n}\n\n//# sourceURL=webpack:///./src/js/model/NodeBody.js?");
+
+/***/ }),
+
+/***/ "./src/js/model/NodeTest.js":
+/*!**********************************!*\
+  !*** ./src/js/model/NodeTest.js ***!
+  \**********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return NodeTest; });\n/* harmony import */ var _Node__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Node */ \"./src/js/model/Node.js\");\n\r\n\r\nclass NodeTest extends _Node__WEBPACK_IMPORTED_MODULE_0__[\"default\"] {\r\n    constructor(index, body, trueNext, falseNext, env){\r\n        super(index, body, env);\r\n        this.trueNext = trueNext;\r\n        this.falseNext = falseNext;\r\n    }\r\n\r\n    edges(){\r\n        return `${this.index} -> ${this.trueNext} [label='T']; ${this.index} -> ${this.falseNext} [label='F'];`;\r\n    }\r\n\r\n}\n\n//# sourceURL=webpack:///./src/js/model/NodeTest.js?");
+
+/***/ }),
+
 /***/ "./src/js/model/ReturnLine.js":
 /*!************************************!*\
   !*** ./src/js/model/ReturnLine.js ***!
@@ -2186,7 +2222,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return ReturnLine; });\n/* harmony import */ var _Line__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Line */ \"./src/js/model/Line.js\");\n/* harmony import */ var _valueExtractor__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../valueExtractor */ \"./src/js/valueExtractor.js\");\n\r\n\r\n\r\nconst type = 'returnStatement';\r\n\r\nclass ReturnLine extends _Line__WEBPACK_IMPORTED_MODULE_0__[\"default\"]{\r\n    constructor(statement){\r\n        const { argument } = statement;\r\n        super(type);\r\n        this.lineValue = Object(_valueExtractor__WEBPACK_IMPORTED_MODULE_1__[\"extractValue\"])(argument);\r\n    }\r\n}\n\n//# sourceURL=webpack:///./src/js/model/ReturnLine.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return ReturnLine; });\n/* harmony import */ var _Line__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Line */ \"./src/js/model/Line.js\");\n/* harmony import */ var _valueExtractor__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../valueExtractor */ \"./src/js/valueExtractor.js\");\n\r\n\r\n\r\nconst type = 'returnStatement';\r\n\r\nclass ReturnLine extends _Line__WEBPACK_IMPORTED_MODULE_0__[\"default\"]{\r\n    constructor(statement){\r\n        const { argument } = statement;\r\n        super(type);\r\n        this.lineValue = Object(_valueExtractor__WEBPACK_IMPORTED_MODULE_1__[\"extractValue\"])(argument);\r\n    }\r\n\r\n    toString(){\r\n        `retrun ${this.lineValue}`;\r\n    }\r\n}\n\n//# sourceURL=webpack:///./src/js/model/ReturnLine.js?");
 
 /***/ }),
 
@@ -2222,7 +2258,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\nconst buildGraph = (/*graphScript*/) => {\r\n    const d3 = __webpack_require__(/*! d3-graphviz */ \"./node_modules/d3-graphviz/build/d3-graphviz.js\");\r\n    d3.graphviz('#graph').renderDot('digraph { node [style=\"filled\"] 5 [fillcolor=\"#d62728\"] a -> { \"x+5;\\nx+7;\"  5 \"\"} [ label = \"1\"];{ \"x+5;\\nx+7;\"  5 \"\"} -> c [ label = \"2\" ];}');\r\n};\r\n\r\n/* harmony default export */ __webpack_exports__[\"default\"] = (buildGraph);\n\n//# sourceURL=webpack:///./src/js/view/view.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _model_NodeBody__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../model/NodeBody */ \"./src/js/model/NodeBody.js\");\n\r\n\r\nconst getNodeEdges = (node, length) => {\r\n    if(node instanceof _model_NodeBody__WEBPACK_IMPORTED_MODULE_0__[\"default\"] && node.next > length){\r\n        return [];\r\n    } \r\n    return [node.edges()];\r\n    \r\n};\r\n\r\nconst createGraphFromNodeSystem = (evaluatedNodeSystem) => {\r\n    const nodes = [];\r\n    let edges = [];\r\n    evaluatedNodeSystem.forEach(node => {\r\n        nodes.push(node.toString());\r\n        const nodeEdges = getNodeEdges(node, evaluatedNodeSystem.length);\r\n        edges = [...edges, ...nodeEdges];\r\n    });\r\n\r\n    return { nodes: nodes.join(' '), edges: edges.join(' ') };\r\n};\r\n\r\nconst buildGraph = (evaluatedNodeSystem) => {\r\n    const d3 = __webpack_require__(/*! d3-graphviz */ \"./node_modules/d3-graphviz/build/d3-graphviz.js\");\r\n    const { nodes, edges } = createGraphFromNodeSystem(evaluatedNodeSystem); \r\n    d3.graphviz('#graph').renderDot(`digraph { node [style=\"filled\"] ${nodes} ${edges} }`);\r\n};\r\n\r\n/* harmony default export */ __webpack_exports__[\"default\"] = (buildGraph);\n\n//# sourceURL=webpack:///./src/js/view/view.js?");
 
 /***/ }),
 

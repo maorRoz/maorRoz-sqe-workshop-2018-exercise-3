@@ -7,4 +7,8 @@ export default class ElseIfLine extends IfLine{
         super(statement, body, alternate);
         this.lineType = type;
     }
+
+    toString(){
+        return this.lineCondition;
+    }
 }

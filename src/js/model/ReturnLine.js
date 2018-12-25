@@ -9,4 +9,8 @@ export default class ReturnLine extends Line{
         super(type);
         this.lineValue = extractValue(argument);
     }
+
+    toString(){
+        `retrun ${this.lineValue}`;
+    }
 }

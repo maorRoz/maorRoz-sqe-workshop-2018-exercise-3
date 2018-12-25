@@ -11,4 +11,9 @@ export default class AssignmentLine extends Line {
         this.lineValue = extractValue(right);
         
     }
+
+    toString(){
+        const value = this.lineValue ? ` = ${this.lineValue};` : ';';
+        return `${this.lineName}${value}`;
+    }
 }

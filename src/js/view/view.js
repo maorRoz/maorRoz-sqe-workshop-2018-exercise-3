@@ -1,6 +1,29 @@
-const buildGraph = (/*graphScript*/) => {
+import NodeBody from '../model/NodeBody';
+
+const getNodeEdges = (node, length) => {
+    if(node instanceof NodeBody && node.next > length){
+        return [];
+    } 
+    return [node.edges()];
+    
+};
+
+const createGraphFromNodeSystem = (evaluatedNodeSystem) => {
+    const nodes = [];
+    let edges = [];
+    evaluatedNodeSystem.forEach(node => {
+        nodes.push(node.toString());
+        const nodeEdges = getNodeEdges(node, evaluatedNodeSystem.length);
+        edges = [...edges, ...nodeEdges];
+    });
+
+    return { nodes: nodes.join(' '), edges: edges.join(' ') };
+};
+
+const buildGraph = (evaluatedNodeSystem) => {
     const d3 = require('d3-graphviz');
-    d3.graphviz('#graph').renderDot('digraph { node [style="filled"] 5 [fillcolor="#d62728"] a -> { "x+5;\nx+7;"  5 ""} [ label = "1"];{ "x+5;\nx+7;"  5 ""} -> c [ label = "2" ];}');
+    const { nodes, edges } = createGraphFromNodeSystem(evaluatedNodeSystem); 
+    d3.graphviz('#graph').renderDot(`digraph { node [style="filled"] ${nodes} ${edges} }`);
 };
 
 export default buildGraph;
