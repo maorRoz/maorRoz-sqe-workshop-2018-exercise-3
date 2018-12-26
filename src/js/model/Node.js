@@ -9,7 +9,7 @@ export default class Node{
 
     toString(){
         const toFillColor = this.hasColor ? 'fillcolor=green' : '';
-        return `${this.index}[label="${this.body.join('\n')}" xlabel="${this.index} "shape=${this.shape} ${toFillColor}];`;
+        return `${this.index}[label="${this.body.join('\n')}" xlabel="${this.index}" shape=${this.shape} ${toFillColor}];`;
     }
 
 }

@@ -1,9 +1,35 @@
 import { parseCode } from './code-analyzer';
 import createMethodAndArguments from './controller/elementsTableController';
+import getEvaluatedNodeSystem from './controller/evaluator';
+import codeToNodeSystem from './controller/nodeSystemControler';
+import NodeTest from './model/NodeTest';
+import NodeBody from './model/NodeBody';
+
+
 
 export const makeTestableFunction = (code) => {
     const parsedCode = parseCode(code);
     return createMethodAndArguments(parsedCode);
+};
+
+export const makeTestableEvaluatedNodeSystem = (code, parameters) => {
+    const testableNodeSystem = makeTestableNodeSystem(code);
+    return getEvaluatedNodeSystem(testableNodeSystem, parameters);
+};
+
+export const makeTestableNodeSystem = (code) => {
+    const testableFunction = makeTestableFunction(code);
+    return codeToNodeSystem(testableFunction);
+};
+
+
+export const createExpectedNodeTest = (index, body, evaluatedTest, trueNext, falseNext, env) => {
+    return new NodeTest(index, body, evaluatedTest, trueNext, falseNext, env);
+};
+
+
+export const createExpectedNodeBody = (index, body, next, env, shape) => {
+    return new NodeBody(index, body, next, env, shape);
 };
 
 const createExpectedObject = (objectProperties) =>

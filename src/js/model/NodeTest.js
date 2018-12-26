@@ -8,6 +8,7 @@ export default class NodeTest extends Node {
         this.falseNext = falseNext;
         this.shape = 'diamond';
     }
+    
     trueEdge(length){
         return this.trueNext > length ? '' : `${this.index} -> ${this.trueNext} [label="T"]; `;
     }

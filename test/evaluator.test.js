@@ -6,4 +6,14 @@ describe('nodeSystemController Tests', () => {
         const evaluatedNodes = getEvaluatedNodeSystem([], [], []);
         expect(evaluatedNodes).to.deep.equal([]);
     });
+
+    describe('Examples', () => {
+        it('Example 1', () => {
+
+        });
+
+        it('Example 2', () => {
+
+        });
+    });
 });
