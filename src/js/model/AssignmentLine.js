@@ -7,7 +7,7 @@ export default class AssignmentLine extends Line {
     constructor(expression){
         const { left , right} = expression;
         super(type);
-        this.lineName = extractValue(left);
+        this.lineName = extractValue(left || expression);
         this.lineValue = extractValue(right);
         
     }

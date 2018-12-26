@@ -20,7 +20,7 @@ const unaryExpressionExtractValue = (expression, parenthesis) => {
 
 const updateExpressionExtractValue = (expression, parenthesis) => {
     const { argument, operator } = expression;
-    const updateValue =  operator + extractValue(argument, true);
+    const updateValue =  extractValue(argument, true) + operator;
     return parenthesis ? `(${updateValue})` : updateValue;
 };
 
