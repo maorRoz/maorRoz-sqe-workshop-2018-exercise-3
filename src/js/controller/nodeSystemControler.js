@@ -1,9 +1,23 @@
 import NodeBody from '../model/NodeBody';
-//import NodeTest from '../model/NodeTest';
+import NodeTest from '../model/NodeTest';
 
 
 const handleIf = () => null;
-const handleWhile = () => null;
+const handleWhile = (nullIndex, statement, locals, restBody, nexts) => {
+    const testIndex = nullIndex + 1;
+    const nodeNull = new NodeBody(nullIndex, ['NULL'], testIndex, locals);
+    let trueNextIndex = nullIndex;
+    let whileBodyNodes = [];
+    if(statement.lineBody.length > 0){
+        trueNextIndex = testIndex + 1;
+        whileBodyNodes = handleBody(testIndex + 1, statement.lineBody, locals, [undefined]);
+        whileBodyNodes[whileBodyNodes.length - 1].next = nullIndex;
+    }
+    const failNextIndex = testIndex + whileBodyNodes.length + 1;
+    const whileNextNodes = handleBody(failNextIndex, restBody, locals, nexts); 
+    const nodeTest = new NodeTest(testIndex, [statement.lineCondition], trueNextIndex, failNextIndex, locals);
+    return [nodeNull, nodeTest, ...whileBodyNodes, ...whileNextNodes];
+};
 const handleReturn = (nodeIndex, statement) => {
     const returnBody = statement.toString();
     const returnNode =  new NodeBody(nodeIndex, [returnBody], nodeIndex + 1);
@@ -55,18 +69,29 @@ const handleAssignment = (assignment, locals) => {
     return extendedLocals;
 };
 
-const getNextNodes = (nodeIndex, body, index, locals, next) => {
-    if(!index){
-        return handleBody(nodeIndex, next, locals);
+const getNextNodes = (nodeIndex, body, index, locals, nexts) => {
+    if(index === undefined){
+        return handleBody(nodeIndex, nexts[0], locals);
     } 
 
     const nextNodeBody = body[index];
     const handler = typeCodeToParse[nextNodeBody.lineType];
-    return handler(nodeIndex, nextNodeBody, locals, body.slice(index).concat(next));
+    return handler(nodeIndex, nextNodeBody, locals, body.slice(index + 1), nexts);
 };
 
-const handleBody = (nodeIndex, body, locals, next) => {
-    if(!body && !next){
+const handleNodesBody = (nodeIndex, body, nextNodeBodyIndex, nodeBody, locals, nexts) => {
+    let nextIndex = nodeIndex;
+    let node = [];
+    if(nodeBody.length > 0){
+        nextIndex++;
+        node = [new NodeBody(nodeIndex, nodeBody, nextIndex, locals)];
+    } 
+    const nextNodes = getNextNodes(nextIndex, body, nextNodeBodyIndex, locals, nexts);
+    return [...node, ...nextNodes];
+};
+
+const handleBody = (nodeIndex, body, locals, nexts) => {
+    if(!body || body.length === 0 || !body[0]){
         return [];
     }
     const nodeBody = [];
@@ -81,14 +106,12 @@ const handleBody = (nodeIndex, body, locals, next) => {
             return false;
         }
     });
-    const node = new NodeBody(nodeIndex, nodeBody, nodeIndex + 1, locals);
-    const nextNodes = getNextNodes(nodeIndex + 1, body, nextNodeBodyIndex, locals, next);
-    return [node, ...nextNodes];
+    return handleNodesBody(nodeIndex, body, nextNodeBodyIndex, nodeBody, locals, nexts);
 };
 
 const codeToNodeSystem = (method) => {
     const locals = [];
-    const nodeSystem = handleBody(1, method.lineBody, locals);
+    const nodeSystem = handleBody(1, method.lineBody, locals, [undefined]);
     return nodeSystem;
 };
 

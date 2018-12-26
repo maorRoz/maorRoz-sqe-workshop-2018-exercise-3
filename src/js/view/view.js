@@ -1,11 +1,6 @@
-import NodeBody from '../model/NodeBody';
-
 const getNodeEdges = (node, length) => {
-    if(node instanceof NodeBody && node.next > length){
-        return [];
-    } 
-    return [node.edges()];
-    
+    const edges = node.edges(length);
+    return edges ? [edges] : [];
 };
 
 const createGraphFromNodeSystem = (evaluatedNodeSystem) => {

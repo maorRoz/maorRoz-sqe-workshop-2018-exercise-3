@@ -4,6 +4,7 @@ export default class Node{
         this.body = body;
         this.env = env;
         this.toColor = false;
+        this.shape = 'circle';
     }
 
     toTest(){
@@ -11,8 +12,8 @@ export default class Node{
     }
 
     toString(){
-        const toFillColor = this.toColor ? 'fillcolor="#32CD32"' : '';
-        return `${this.index}[label="${this.body.join('\n')}" ${toFillColor}];`;
+        const toFillColor = this.toColor ? 'fillcolor=green' : '';
+        return `${this.index}[label="${this.body.join('\n')}" shape=${this.shape} ${toFillColor}];`;
     }
 
 }
