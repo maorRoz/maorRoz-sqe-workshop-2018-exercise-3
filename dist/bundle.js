@@ -2186,7 +2186,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return Node; });\nclass Node{\r\n    constructor(index, body, env){\r\n        this.index = index;\r\n        this.body = body;\r\n        this.env = env;\r\n        this.hasColor = false;\r\n        this.shape = 'circle';\r\n    }\r\n\r\n    toColor(){\r\n        this.hasColor = true;\r\n        return true;\r\n    }\r\n\r\n    toString(){\r\n        const toFillColor = this.hasColor ? 'fillcolor=green' : '';\r\n        return `${this.index}[label=\"${this.body.join('\\n')}\" shape=${this.shape} ${toFillColor}];`;\r\n    }\r\n\r\n}\n\n//# sourceURL=webpack:///./src/js/model/Node.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return Node; });\nclass Node{\r\n    constructor(index, body, env){\r\n        this.index = index;\r\n        this.body = body;\r\n        this.env = env;\r\n        this.hasColor = false;\r\n        this.shape = 'circle';\r\n    }\r\n\r\n    toColor(){\r\n        this.hasColor = true;\r\n        return true;\r\n    }\r\n\r\n    toString(){\r\n        const toFillColor = this.hasColor ? 'fillcolor=green' : '';\r\n        return `${this.index}[label=\"${this.body.join('\\n')}\" xlabel=\"${this.index} \"shape=${this.shape} ${toFillColor}];`;\r\n    }\r\n\r\n}\n\n//# sourceURL=webpack:///./src/js/model/Node.js?");
 
 /***/ }),
 
