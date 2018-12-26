@@ -13,7 +13,7 @@ export default class AssignmentLine extends Line {
     }
 
     toString(){
-        const value = this.lineValue ? ` = ${this.lineValue};` : ';';
+        const value = this.lineValue ? ` = ${this.lineValue}` : '';
         return `${this.lineName}${value}`;
     }
 }

@@ -18,6 +18,9 @@ describe('Variable Tests' , () => {
             it('Variable Line', () => {
                 expect(functionElements[0]).to.deep.equal(expectedVariableLineX);
             });
+            it('Variable print', () => {
+                expect(functionElements[0].toString()).to.equal('x');
+            });
         });
         describe('Two Variables in Function Body', () => {
             const expectedVariableLineX = createExpectedAssignmentStatement('x');

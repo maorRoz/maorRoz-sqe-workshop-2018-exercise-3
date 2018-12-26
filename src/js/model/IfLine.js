@@ -11,8 +11,4 @@ export default class IfLine extends Line{
         this.lineBody = body;
         this.alternate = alternate;
     }
-
-    toString(){
-        return this.lineCondition;
-    }
 }

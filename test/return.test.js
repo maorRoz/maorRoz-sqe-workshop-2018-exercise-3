@@ -16,6 +16,9 @@ describe('Return Tests' , () => {
             const expectedReturnLine = createExpectedReturnStatement('5');
             expect(functionElements[0]).to.deep.equal(expectedReturnLine);
         });
+        it('Return print', () => {
+            expect(functionElements[0].toString()).to.equal('return 5');
+        });
     });
     describe('Return variable', () => {
         beforeEach(() => {

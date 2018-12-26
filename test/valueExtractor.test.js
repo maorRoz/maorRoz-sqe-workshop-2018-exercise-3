@@ -56,12 +56,12 @@ describe('Value Extractor Tests', () => {
         it('UpdateExpression', () => {
             const updateExpression = { type: 'UpdateExpression', operator: '--', argument: {type: 'Literal', raw: '2'}};
             const stringResult = extractValue(updateExpression);
-            expect(stringResult).to.equal('--2');
+            expect(stringResult).to.equal('2--');
         });
         it('UpdateExpression with parenthesis', () => {
             const updateExpression = { type: 'UpdateExpression', operator: '++', argument: { type: 'Identifier', name: 'i'}};
             const stringResult = extractValue(updateExpression, true);
-            expect(stringResult).to.equal('(++i)');
+            expect(stringResult).to.equal('(i++)');
         });
     });
 
