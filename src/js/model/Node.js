@@ -7,11 +7,6 @@ export default class Node{
         this.shape = 'circle';
     }
 
-    toColor(){
-        this.hasColor = true;
-        return true;
-    }
-
     toString(){
         const toFillColor = this.hasColor ? 'fillcolor=green' : '';
         return `${this.index}[label="${this.body.join('\n')}" xlabel="${this.index} "shape=${this.shape} ${toFillColor}];`;
