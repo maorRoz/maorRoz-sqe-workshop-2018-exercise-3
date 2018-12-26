@@ -1,8 +1,42 @@
 import NodeBody from '../model/NodeBody';
 import NodeTest from '../model/NodeTest';
+const handleAlternate = (alternateIndex, statement, locals, nexts) => {
+    return statement.lineType === 'elseIfStatement' ?
+        handleIf(alternateIndex, statement, locals, nexts) :
+        handleBody(alternateIndex, statement.lineBody, locals, nexts);
+};
 
+const updateIfBranchesExit = (exitBodyIndex, ifBodyNodes, alternateNodes) => {
+    if(ifBodyNodes.length > 0){
+        ifBodyNodes[ifBodyNodes.length - 1].next = exitBodyIndex;
+    }
 
-const handleIf = () => null;
+    if(alternateNodes.length > 0){
+        alternateNodes[alternateNodes.length - 1].next = exitBodyIndex;
+    }
+};
+
+const handleIf = (testIndex, statement, locals, restBody, nexts) => {
+    let trueNextIndex = testIndex + 1;
+    let falseNextIndex = testIndex + 1;
+    let ifBodyNodes = [];
+    let alternateNodes = [];
+    if(statement.lineBody.length > 0){
+        ifBodyNodes = handleBody(trueNextIndex, statement.lineBody, locals, [undefined]);
+        falseNextIndex = testIndex + ifBodyNodes.length + 1;
+    }
+    if(statement.alternate){
+        alternateNodes = handleAlternate(falseNextIndex, statement.alternate, locals, [undefined]);
+        trueNextIndex = trueNextIndex === falseNextIndex ? testIndex + alternateNodes.length + 1 : trueNextIndex;
+    }
+    const nodeTest = new NodeTest(testIndex, [statement.lineCondition], trueNextIndex, falseNextIndex, locals);
+    const exitIfIndex = testIndex + 1 + ifBodyNodes.length + alternateNodes.length;
+    const ifExitNode = new NodeBody(exitIfIndex, [''], exitIfIndex + 1, locals, 'circle');
+    updateIfBranchesExit(exitIfIndex, ifBodyNodes, alternateNodes);
+    const ifNextNodes = handleBody(exitIfIndex + 1, restBody, locals, nexts);
+    return [nodeTest, ...ifBodyNodes, ...alternateNodes, ifExitNode, ...ifNextNodes];
+};
+
 const handleWhile = (nullIndex, statement, locals, restBody, nexts) => {
     const testIndex = nullIndex + 1;
     const nodeNull = new NodeBody(nullIndex, ['NULL'], testIndex, locals);
@@ -13,10 +47,11 @@ const handleWhile = (nullIndex, statement, locals, restBody, nexts) => {
         whileBodyNodes = handleBody(testIndex + 1, statement.lineBody, locals, [undefined]);
         whileBodyNodes[whileBodyNodes.length - 1].next = nullIndex;
     }
-    const failNextIndex = testIndex + whileBodyNodes.length + 1;
-    const whileNextNodes = handleBody(failNextIndex, restBody, locals, nexts); 
-    const nodeTest = new NodeTest(testIndex, [statement.lineCondition], trueNextIndex, failNextIndex, locals);
-    return [nodeNull, nodeTest, ...whileBodyNodes, ...whileNextNodes];
+    const exitWhileIndex = testIndex + whileBodyNodes.length + 1;
+    const exitWhileNode = new NodeBody(exitWhileIndex, [''], exitWhileIndex + 1, locals, 'circle');
+    const whileNextNodes = handleBody(exitWhileIndex + 1, restBody, locals, nexts); 
+    const nodeTest = new NodeTest(testIndex, [statement.lineCondition], trueNextIndex, exitWhileIndex, locals);
+    return [nodeNull, nodeTest, ...whileBodyNodes, exitWhileNode, ...whileNextNodes];
 };
 const handleReturn = (nodeIndex, statement) => {
     const returnBody = statement.toString();
