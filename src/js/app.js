@@ -2,7 +2,7 @@ import $ from 'jquery';
 import {parseCode} from './code-analyzer';
 import createMethodAndArguments from './controller/elementsTableController';
 import codeToNodeSystem from './controller/nodeSystemControler';
-import toEvalNodeSystem from './controller/evaluator';
+import getEvaluatedNodeSystem from './controller/evaluator';
 import  buildGraph from './view/view';
 
 const argumentsTextIntoValues = () => {
@@ -26,7 +26,7 @@ $(document).ready(function () {
         global.method = createMethodAndArguments(parsedCode);
         global.nodeSystem = codeToNodeSystem(global.method);
         const argumentsValues = argumentsTextIntoValues();
-        global.evaluatedNodeSystem = toEvalNodeSystem(global.nodeSystem, argumentsValues);
+        global.evaluatedNodeSystem = getEvaluatedNodeSystem(global.method.parameters, global.nodeSystem, argumentsValues);
         buildGraph(global.evaluatedNodeSystem);
     });
 });

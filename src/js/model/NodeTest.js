@@ -1,8 +1,9 @@
 import Node from './Node';
 
 export default class NodeTest extends Node {
-    constructor(index, body, trueNext, falseNext, env){
+    constructor(index, body, evaluatedTest, trueNext, falseNext, env){
         super(index, body, env);
+        this.evaluatedTest = evaluatedTest;
         this.trueNext = trueNext;
         this.falseNext = falseNext;
         this.shape = 'diamond';
@@ -22,8 +23,16 @@ export default class NodeTest extends Node {
         return `${this.trueEdge(length)}${this.falseEdge(length)}`;
     }
 
-    toTest(){
-        return false;
+    toColor(valueMapper){
+        this.hasColor = true;
+        
+        let toEvalCondition = this.evaluatedTest;
+        valueMapper.forEach(entry => {
+            const valueToReplace = Array.isArray(entry.value) ? `[${entry.value.join()}]` : entry.value;
+            toEvalCondition = toEvalCondition.replace(new RegExp(entry.name, 'g'), valueToReplace);
+        });
+        const result = eval(toEvalCondition);
+        return result ? this.trueNext : this.falseNext ;
     }
 
 }

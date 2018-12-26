@@ -1,3 +1,5 @@
+const d3 = require('d3-graphviz');
+
 const getNodeEdges = (node, length) => {
     const edges = node.edges(length);
     return edges ? [edges] : [];
@@ -16,7 +18,6 @@ const createGraphFromNodeSystem = (evaluatedNodeSystem) => {
 };
 
 const buildGraph = (evaluatedNodeSystem) => {
-    const d3 = require('d3-graphviz');
     const { nodes, edges } = createGraphFromNodeSystem(evaluatedNodeSystem); 
     d3.graphviz('#graph').renderDot(`digraph { node [style="filled"] ${nodes} ${edges} }`);
 };

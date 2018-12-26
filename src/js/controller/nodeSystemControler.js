@@ -29,7 +29,7 @@ const handleIf = (testIndex, statement, locals, restBody, nexts) => {
         alternateNodes = handleAlternate(falseNextIndex, statement.alternate, locals, [undefined]);
         trueNextIndex = trueNextIndex === falseNextIndex ? testIndex + alternateNodes.length + 1 : trueNextIndex;
     }
-    const nodeTest = new NodeTest(testIndex, [statement.lineCondition], trueNextIndex, falseNextIndex, locals);
+    const nodeTest = new NodeTest(testIndex, [statement.lineCondition], subtituteExpression(statement.lineCondition, locals), trueNextIndex, falseNextIndex, locals);
     const exitIfIndex = testIndex + 1 + ifBodyNodes.length + alternateNodes.length;
     const ifExitNode = new NodeBody(exitIfIndex, [''], exitIfIndex + 1, locals, 'circle');
     updateIfBranchesExit(exitIfIndex, ifBodyNodes, alternateNodes);
@@ -50,7 +50,7 @@ const handleWhile = (nullIndex, statement, locals, restBody, nexts) => {
     const exitWhileIndex = testIndex + whileBodyNodes.length + 1;
     const exitWhileNode = new NodeBody(exitWhileIndex, [''], exitWhileIndex + 1, locals, 'circle');
     const whileNextNodes = handleBody(exitWhileIndex + 1, restBody, locals, nexts); 
-    const nodeTest = new NodeTest(testIndex, [statement.lineCondition], trueNextIndex, exitWhileIndex, locals);
+    const nodeTest = new NodeTest(testIndex, [statement.lineCondition], subtituteExpression(statement.lineCondition, locals), trueNextIndex, exitWhileIndex, locals);
     return [nodeNull, nodeTest, ...whileBodyNodes, exitWhileNode, ...whileNextNodes];
 };
 const handleReturn = (nodeIndex, statement) => {
@@ -85,15 +85,17 @@ const modifyLocalArray = (local, index, value) => {
 };
 
 const newLocalCreation = (assignment, locals) => {
+    const newValue = subtituteExpression(assignment.lineValue, locals);
+
     if(assignment.lineName.includes('[')){
         const nameWithoutArrayIndex = assignment.lineName.replace(/\[.*\]/g,'');
         const indexWithoutName = assignment.lineName.replace(/.*\[|\]/g, '');
         const evaluatedIndex = JSON.parse(subtituteExpression(indexWithoutName, locals));
         const local = locals.find(local => local.name === nameWithoutArrayIndex);
-        const modifiedLocalArray = modifyLocalArray(local, evaluatedIndex, assignment.lineValue);
+        const modifiedLocalArray = modifyLocalArray(local, evaluatedIndex, newValue);
         return modifiedLocalArray ;
     }
-    return { name: assignment.lineName, value: assignment.lineValue };
+    return { name: assignment.lineName, value: newValue };
 };
 
 const handleAssignment = (assignment, locals) => {

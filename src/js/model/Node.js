@@ -3,16 +3,17 @@ export default class Node{
         this.index = index;
         this.body = body;
         this.env = env;
-        this.toColor = false;
+        this.hasColor = false;
         this.shape = 'circle';
     }
 
-    toTest(){
+    toColor(){
+        this.hasColor = true;
         return true;
     }
 
     toString(){
-        const toFillColor = this.toColor ? 'fillcolor=green' : '';
+        const toFillColor = this.hasColor ? 'fillcolor=green' : '';
         return `${this.index}[label="${this.body.join('\n')}" shape=${this.shape} ${toFillColor}];`;
     }
 
