@@ -29,7 +29,7 @@ const handleIf = (testIndex, statement, locals, restBody, nexts) => {
         alternateNodes = handleAlternate(falseNextIndex, statement.alternate, locals, [undefined]);
         trueNextIndex = trueNextIndex === falseNextIndex ? testIndex + alternateNodes.length + 1 : trueNextIndex;
     }
-    const nodeTest = new NodeTest(testIndex, [statement.lineCondition], subtituteExpression(statement.lineCondition, locals), trueNextIndex, falseNextIndex, locals);
+    const nodeTest = new NodeTest(testIndex, [statement.lineCondition], subtituteExpression(statement.lineCondition, JSON.parse(JSON.stringify(locals))), trueNextIndex, falseNextIndex, JSON.parse(JSON.stringify(locals)));
     const exitIfIndex = testIndex + 1 + ifBodyNodes.length + alternateNodes.length;
     const ifExitNode = new NodeBody(exitIfIndex, [''], exitIfIndex + 1, locals, 'circle');
     updateIfBranchesExit(exitIfIndex, ifBodyNodes, alternateNodes);
@@ -39,7 +39,8 @@ const handleIf = (testIndex, statement, locals, restBody, nexts) => {
 
 const handleWhile = (nullIndex, statement, locals, restBody, nexts) => {
     const testIndex = nullIndex + 1;
-    const nodeNull = new NodeBody(nullIndex, ['NULL'], testIndex, locals);
+    const localsBeforeBody = JSON.parse(JSON.stringify(locals));
+    const nodeNull = new NodeBody(nullIndex, ['NULL'], testIndex,  localsBeforeBody);
     let trueNextIndex = nullIndex;
     let whileBodyNodes = [];
     if(statement.lineBody.length > 0){
@@ -48,9 +49,9 @@ const handleWhile = (nullIndex, statement, locals, restBody, nexts) => {
         whileBodyNodes[whileBodyNodes.length - 1].next = nullIndex;
     }
     const exitWhileIndex = testIndex + whileBodyNodes.length + 1;
-    const exitWhileNode = new NodeBody(exitWhileIndex, [''], exitWhileIndex + 1, locals, 'circle');
-    const whileNextNodes = handleBody(exitWhileIndex + 1, restBody, locals, nexts); 
-    const nodeTest = new NodeTest(testIndex, [statement.lineCondition], subtituteExpression(statement.lineCondition, locals), trueNextIndex, exitWhileIndex, locals);
+    const exitWhileNode = new NodeBody(exitWhileIndex, [''], exitWhileIndex + 1, localsBeforeBody, 'circle');
+    const whileNextNodes = handleBody(exitWhileIndex + 1, restBody,  JSON.parse(JSON.stringify(locals)), nexts); 
+    const nodeTest = new NodeTest(testIndex, [statement.lineCondition], subtituteExpression(statement.lineCondition, localsBeforeBody), trueNextIndex, exitWhileIndex, localsBeforeBody);
     return [nodeNull, nodeTest, ...whileBodyNodes, exitWhileNode, ...whileNextNodes];
 };
 const handleReturn = (nodeIndex, statement) => {
@@ -123,7 +124,7 @@ const handleNodesBody = (nodeIndex, body, nextNodeBodyIndex, nodeBody, locals, n
         nextIndex++;
         node = [new NodeBody(nodeIndex, nodeBody, nextIndex, locals)];
     } 
-    const nextNodes = getNextNodes(nextIndex, body, nextNodeBodyIndex, locals, nexts);
+    const nextNodes = getNextNodes(nextIndex, body, nextNodeBodyIndex, JSON.parse(JSON.stringify(locals)), nexts);
     return [...node, ...nextNodes];
 };
 

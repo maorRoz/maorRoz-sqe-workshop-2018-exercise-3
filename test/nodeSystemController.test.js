@@ -220,11 +220,67 @@ describe('nodeSystemController Tests', () => {
 
     describe('While to Node', () => {
         describe('Only While', () => {
+            it('Empty While', () => {
+                const actualNodeSystem = makeTestableNodeSystem('function test(){ let m = [1]; m[0] = 3; while(m[0] === 2){}}');
+                const expectedAssignmentNodeBody = createExpectedNodeBody(1, ['m = [1]', 'm[0] = 3'], 2, [{ name: 'm', value: '[3]'}]);
+                const expectedNodeWhileNull = createExpectedNodeBody(2, ['NULL'], 3, [{ name: 'm', value: '[3]'}]);
+                const expectedNodeWhileTest = createExpectedNodeTest(3, ['m[0]===2'], '([3])[0]===2', 2, 4, [{ name: 'm', value: '[3]'}]);
+                const expectedNodeWhileExit = createExpectedNodeBody(4, [''], 5, [{ name: 'm', value: '[3]'}], 'circle');
+                const expectedNodeSystem = [ expectedAssignmentNodeBody, expectedNodeWhileNull, 
+                    expectedNodeWhileTest, expectedNodeWhileExit];
+                expect(actualNodeSystem).to.deep.equal(expectedNodeSystem);
+            });
 
+            it('While with Body', () => {
+                const actualNodeSystem = makeTestableNodeSystem('function test(){ let m = [1]; m[0] = 3; while(m[0] === 2){ m[0] = 4} m[0] = 5;}');
+                const expectedAssignmentNodeBody1 = createExpectedNodeBody(1, ['m = [1]', 'm[0] = 3'], 2, [{ name: 'm', value: '[3]'}]);
+                const expectedNodeWhileNull = createExpectedNodeBody(2, ['NULL'], 3, [{ name: 'm', value: '[3]'}]);
+                const expectedNodeWhileTest = createExpectedNodeTest(3, ['m[0]===2'], '([3])[0]===2', 4, 5, [{ name: 'm', value: '[3]'}]);
+                const expectedAssignmentNodeBody2 = createExpectedNodeBody(4, ['m[0] = 4'], 2, [{ name: 'm', value: '[4]'}]);
+                const expectedNodeWhileExit = createExpectedNodeBody(5, [''], 6, [{ name: 'm', value: '[3]'}], 'circle');
+                const expectedAssignmentNodeBody3 = createExpectedNodeBody(6, ['m[0] = 5'], 7, [{ name: 'm', value: '[5]'}]);
+                const expectedNodeSystem = [ expectedAssignmentNodeBody1, expectedNodeWhileNull, 
+                    expectedNodeWhileTest,expectedAssignmentNodeBody2, expectedNodeWhileExit, expectedAssignmentNodeBody3];
+                expect(actualNodeSystem).to.deep.equal(expectedNodeSystem);
+            });
         });
 
         describe('While inside While', () => {
+            it('Inner While Empty', () => {
+                const actualNodeSystem = makeTestableNodeSystem('function test(){ let m = [1]; m[0] = 3; while(m[0] === 2){ m[0] = 4; while( m[0] === 4){}} m[0] = 5}');
+                const expectedAssignmentNodeBody1 = createExpectedNodeBody(1, ['m = [1]', 'm[0] = 3'], 2, [{ name: 'm', value: '[3]'}]);
+                const expectedNodeWhileNull1 = createExpectedNodeBody(2, ['NULL'], 3, [{ name: 'm', value: '[3]'}]);
+                const expectedNodeIfTest1 = createExpectedNodeTest(3, ['m[0]===2'], '([3])[0]===2', 4, 8, [{ name: 'm', value: '[3]'}]);
+                const expectedAssignmentNodeBody2 = createExpectedNodeBody(4, ['m[0] = 4'], 5, [{ name: 'm', value: '[4]'}]);
+                const expectedNodeWhileNull2 = createExpectedNodeBody(5, ['NULL'], 6, [{ name: 'm', value: '[4]'}]);
+                const expectedNodeIfTest2 = createExpectedNodeTest(6, ['m[0]===4'], '([4])[0]===4', 5, 7, [{ name: 'm', value: '[4]'}]);
+                const expectedNodeIfExit1 = createExpectedNodeBody(7, [''], 2, [{ name: 'm', value: '[4]'}], 'circle');
+                const expectedNodeIfExit2 = createExpectedNodeBody(8, [''], 9, [{ name: 'm', value: '[3]'}], 'circle');
+                const expectedAssignmentNodeBody3 = createExpectedNodeBody(9, ['m[0] = 5'], 10, [{ name: 'm', value: '[5]'}]);
+                const expectedNodeSystem = [ expectedAssignmentNodeBody1,expectedNodeWhileNull1,
+                    expectedNodeIfTest1, expectedAssignmentNodeBody2, expectedNodeWhileNull2,
+                    expectedNodeIfTest2, expectedNodeIfExit1,expectedNodeIfExit2, expectedAssignmentNodeBody3];
+                expect(actualNodeSystem).to.deep.equal(expectedNodeSystem);
+            });
 
+            it.only('Both Whiles has bodies', () => {
+                const actualNodeSystem = makeTestableNodeSystem('function test(){ let m = [1]; m[0] = 3; while(m[0] === 2){ m[0] = 4; while( m[0] === 4){ m[0] = 9}} m[0] = 5}');
+                const expectedAssignmentNodeBody1 = createExpectedNodeBody(1, ['m = [1]', 'm[0] = 3'], 2, [{ name: 'm', value: '[3]'}]);
+                const expectedNodeWhileNull1 = createExpectedNodeBody(2, ['NULL'], 3, [{ name: 'm', value: '[3]'}]);
+                const expectedNodeIfTest1 = createExpectedNodeTest(3, ['m[0]===2'], '([3])[0]===2', 4, 9, [{ name: 'm', value: '[3]'}]);
+                const expectedAssignmentNodeBody2 = createExpectedNodeBody(4, ['m[0] = 4'], 5, [{ name: 'm', value: '[4]'}]);
+                const expectedNodeWhileNull2 = createExpectedNodeBody(5, ['NULL'], 6, [{ name: 'm', value: '[4]'}]);
+                const expectedNodeIfTest2 = createExpectedNodeTest(6, ['m[0]===4'], '([4])[0]===4', 7, 8, [{ name: 'm', value: '[4]'}]);
+                const expectedAssignmentNodeBody3 = createExpectedNodeBody(7, ['m[0] = 9'], 5, [{ name: 'm', value: '[9]'}]);
+                const expectedNodeIfExit1 = createExpectedNodeBody(8, [''], 2, [{ name: 'm', value: '[4]'}], 'circle');
+                const expectedNodeIfExit2 = createExpectedNodeBody(9, [''], 10, [{ name: 'm', value: '[3]'}], 'circle');
+                const expectedAssignmentNodeBody4 = createExpectedNodeBody(10, ['m[0] = 5'], 11, [{ name: 'm', value: '[5]'}]);
+                const expectedNodeSystem = [ expectedAssignmentNodeBody1,expectedNodeWhileNull1,
+                    expectedNodeIfTest1, expectedAssignmentNodeBody2, expectedNodeWhileNull2,
+                    expectedNodeIfTest2,expectedAssignmentNodeBody3, expectedNodeIfExit1,
+                    expectedNodeIfExit2, expectedAssignmentNodeBody4];
+                expect(actualNodeSystem).to.deep.equal(expectedNodeSystem);
+            });
         });
     });
 
