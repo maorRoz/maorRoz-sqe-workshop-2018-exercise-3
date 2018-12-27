@@ -16,6 +16,12 @@ describe('Node Tests', () => {
         });
     });
 
+    it('color nodetest', () => {
+        const node = createExpectedNodeTest(1, ['x = 7'], 2, 3, null);
+        node.toColor([{name: 'x', value:[1,2]}]);
+        expect(node.hasColor).to.equal(true);
+    });
+
     describe('Edges Tests', () => {
         it('NodeBody Edges - Next Exist', () => {
             const node = createExpectedNodeBody(1, ['x = 7'], 2, null);
