@@ -263,7 +263,7 @@ describe('nodeSystemController Tests', () => {
                 expect(actualNodeSystem).to.deep.equal(expectedNodeSystem);
             });
 
-            it.only('Both Whiles has bodies', () => {
+            it('Both Whiles has bodies', () => {
                 const actualNodeSystem = makeTestableNodeSystem('function test(){ let m = [1]; m[0] = 3; while(m[0] === 2){ m[0] = 4; while( m[0] === 4){ m[0] = 9}} m[0] = 5}');
                 const expectedAssignmentNodeBody1 = createExpectedNodeBody(1, ['m = [1]', 'm[0] = 3'], 2, [{ name: 'm', value: '[3]'}]);
                 const expectedNodeWhileNull1 = createExpectedNodeBody(2, ['NULL'], 3, [{ name: 'm', value: '[3]'}]);
@@ -286,21 +286,71 @@ describe('nodeSystemController Tests', () => {
 
     describe('Complicated Node System', () => {
         it('If inside While', () => {
-
+            const actualNodeSystem = makeTestableNodeSystem('function test(){ let m = [1]; m[0] = 2; while(m[0] === 2){ m[0] = 4; if(m[0] === 4){ m[0] = 5;}} m[0] = 8; }');  
+            const expectedAssignmentNodeBody1 = createExpectedNodeBody(1, ['m = [1]', 'm[0] = 2'], 2, [{ name: 'm', value: '[2]'}]);
+            const expectedNodeWhileNull1 = createExpectedNodeBody(2, ['NULL'], 3, [{ name: 'm', value: '[2]'}]);
+            const expectedNodeIfTest1 = createExpectedNodeTest(3, ['m[0]===2'], '([2])[0]===2', 4, 8, [{ name: 'm', value: '[2]'}]);
+            const expectedAssignmentNodeBody2 = createExpectedNodeBody(4, ['m[0] = 4'], 5, [{ name: 'm', value: '[4]'}]);
+            const expectedNodeIfTest2 = createExpectedNodeTest(5, ['m[0]===4'], '([4])[0]===4', 6, 7, [{ name: 'm', value: '[4]'}]);
+            const expectedAssignmentNodeBody3 = createExpectedNodeBody(6, ['m[0] = 5'], 7, [{ name: 'm', value: '[5]'}]);
+            const expectedNodeIfExit1 = createExpectedNodeBody(7, [''], 2, [{ name: 'm', value: '[4]'}], 'circle');
+            const expectedNodeIfExit2 = createExpectedNodeBody(8, [''], 9, [{ name: 'm', value: '[2]'}], 'circle');
+            const expectedAssignmentNodeBody4 = createExpectedNodeBody(9, ['m[0] = 8'], 10, [{ name: 'm', value: '[8]'}]);
+            const expectedNodeSystem = [ expectedAssignmentNodeBody1,expectedNodeWhileNull1,
+                expectedNodeIfTest1, expectedAssignmentNodeBody2,
+                expectedNodeIfTest2,expectedAssignmentNodeBody3, expectedNodeIfExit1,
+                expectedNodeIfExit2, expectedAssignmentNodeBody4];
+            expect(actualNodeSystem).to.deep.equal(expectedNodeSystem);
         });
 
         it('While inside If', () => {
-
+            const actualNodeSystem = makeTestableNodeSystem('function test(){ let m = [1]; m[0] = 2; if(m[0] === 2){ m[0] = 4; while(m[0] === 4){ m[0] = 5;}} m[0] = 8; }');  
+            const expectedAssignmentNodeBody1 = createExpectedNodeBody(1, ['m = [1]', 'm[0] = 2'], 2, [{ name: 'm', value: '[2]'}]);
+            const expectedNodeIfTest1 = createExpectedNodeTest(2, ['m[0]===2'], '([2])[0]===2', 3, 8, [{ name: 'm', value: '[2]'}]);
+            const expectedAssignmentNodeBody2 = createExpectedNodeBody(3, ['m[0] = 4'], 4, [{ name: 'm', value: '[4]'}]);
+            const expectedNodeWhileNull1 = createExpectedNodeBody(4, ['NULL'], 5, [{ name: 'm', value: '[4]'}]);
+            const expectedNodeIfTest2 = createExpectedNodeTest(5, ['m[0]===4'], '([4])[0]===4', 6, 7, [{ name: 'm', value: '[4]'}]);
+            const expectedAssignmentNodeBody3 = createExpectedNodeBody(6, ['m[0] = 5'], 4, [{ name: 'm', value: '[5]'}]);
+            const expectedNodeIfExit1 = createExpectedNodeBody(7, [''], 8, [{ name: 'm', value: '[4]'}], 'circle');
+            const expectedNodeIfExit2 = createExpectedNodeBody(8, [''], 9, [{ name: 'm', value: '[2]'}], 'circle');
+            const expectedAssignmentNodeBody4 = createExpectedNodeBody(9, ['m[0] = 8'], 10, [{ name: 'm', value: '[8]'}]);
+            const expectedNodeSystem = [ expectedAssignmentNodeBody1,
+                expectedNodeIfTest1, expectedAssignmentNodeBody2, expectedNodeWhileNull1,
+                expectedNodeIfTest2,expectedAssignmentNodeBody3, expectedNodeIfExit1,
+                expectedNodeIfExit2, expectedAssignmentNodeBody4];
+            expect(actualNodeSystem).to.deep.equal(expectedNodeSystem);
         });
     });
 
     describe('Examples', () => {
         it('Example 1', () => {
-
+            const actualNodeSystem = makeTestableNodeSystem('function foo(x,y,z){ let a = x + 1; let b = a + y; let c = 0; if(b < z){ c = c + 5; } else if(b < z * 2){ c = c + x + 5;} else{ c = c + z + 5;} return c;}');
+            const expectedAssignmentNodeBody1 = createExpectedNodeBody(1, ['a = x+1', 'b = a+y', 'c = 0'], 2, [{ name: 'a', value: 'x+1'}, { name: 'b', value: '(x+1)+y'}, {name: 'c', value: '0'}]);
+            const expectedNodeWhileTest1 = createExpectedNodeTest(2, ['b<z'], '((x+1)+y)<z', 3, 4, [{ name: 'a', value: 'x+1'}, { name: 'b', value: '(x+1)+y'}, {name: 'c', value: '0'}]);
+            const expectedAssignmentNodeBody2 = createExpectedNodeBody(3, ['c = c+5'], 8, [{ name: 'a', value: 'x+1'}, { name: 'b', value: '(x+1)+y'}, {name: 'c', value: '(0)+5'}]);
+            const expectedNodeWhileTest2 = createExpectedNodeTest(4, ['b<(z*2)'], '((x+1)+y)<(z*2)', 5, 6, [{ name: 'a', value: 'x+1'}, { name: 'b', value: '(x+1)+y'}, {name: 'c', value: '0'}]);
+            const expectedAssignmentNodeBody3 = createExpectedNodeBody(5, ['c = (c+x)+5'], 7, [{ name: 'a', value: 'x+1'}, { name: 'b', value: '(x+1)+y'}, {name: 'c', value: '((0)+x)+5'}]);
+            const expectedAssignmentNodeBody4 = createExpectedNodeBody(6, ['c = (c+z)+5'], 7, [{ name: 'a', value: 'x+1'}, { name: 'b', value: '(x+1)+y'}, {name: 'c', value: '((0)+z)+5'}]);
+            const expectedNodeIfExit1 = createExpectedNodeBody(7, [''], 8, [{ name: 'a', value: 'x+1'}, { name: 'b', value: '(x+1)+y'}, {name: 'c', value: '0'}], 'circle');
+            const expectedNodeIfExit2 = createExpectedNodeBody(8, [''], 9, [{ name: 'a', value: 'x+1'}, { name: 'b', value: '(x+1)+y'}, {name: 'c', value: '0'}], 'circle');
+            const expectedAssignmentNodeBody5 = createExpectedNodeBody(9, ['return c'], 10, []);
+            const expectedNodeSystem = [ expectedAssignmentNodeBody1, expectedNodeWhileTest1, 
+                expectedAssignmentNodeBody2,expectedNodeWhileTest2, expectedAssignmentNodeBody3, expectedAssignmentNodeBody4,
+                expectedNodeIfExit1, expectedNodeIfExit2, expectedAssignmentNodeBody5];
+            expect(actualNodeSystem).to.deep.equal(expectedNodeSystem);
         });
 
         it('Example 2', () => {
-
+            const actualNodeSystem = makeTestableNodeSystem('function foo(x,y,z){ let a = x + 1; let b = a + y; let c = 0; while(a < z){ c = a + b; z = c * 2; a++;} return z;}');
+            const expectedAssignmentNodeBody1 = createExpectedNodeBody(1, ['a = x+1', 'b = a+y', 'c = 0'], 2, [{ name: 'a', value: 'x+1'}, { name: 'b', value: '(x+1)+y'}, {name: 'c', value: '0'}]);
+            const expectedNodeWhileNull = createExpectedNodeBody(2, ['NULL'], 3, [{ name: 'a', value: 'x+1'}, { name: 'b', value: '(x+1)+y'}, {name: 'c', value: '0'}]);
+            const expectedNodeWhileTest = createExpectedNodeTest(3, ['a<z'], '(x+1)<z', 4, 5, [{ name: 'a', value: 'x+1'}, { name: 'b', value: '(x+1)+y'}, {name: 'c', value: '0'}]);
+            const expectedAssignmentNodeBody2 = createExpectedNodeBody(4, ['c = a+b', 'z = c*2', 'a++'], 2, [{ name: 'a', value: 'x+1'}, { name: 'b', value: '(x+1)+y'}, {name: 'c', value: '(x+1)+((x+1)+y)'}, {name:'z', value:'((x+1)+((x+1)+y))*2'}, {name: 'a++', value: ''}]);
+            const expectedNodeWhileExit = createExpectedNodeBody(5, [''], 6, [{ name: 'a', value: 'x+1'}, { name: 'b', value: '(x+1)+y'}, {name: 'c', value: '0'}], 'circle');
+            const expectedAssignmentNodeBody3 = createExpectedNodeBody(6, ['return z'], 7, []);
+            const expectedNodeSystem = [ expectedAssignmentNodeBody1, expectedNodeWhileNull, 
+                expectedNodeWhileTest,expectedAssignmentNodeBody2, expectedNodeWhileExit, expectedAssignmentNodeBody3];
+            expect(actualNodeSystem).to.deep.equal(expectedNodeSystem);
         });
     });
 });

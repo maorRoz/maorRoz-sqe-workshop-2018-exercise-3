@@ -19,19 +19,19 @@ const updateIfBranchesExit = (exitBodyIndex, ifBodyNodes, alternateNodes) => {
 const handleIf = (testIndex, statement, locals, restBody, nexts) => {
     let trueNextIndex = testIndex + 1;
     let falseNextIndex = testIndex + 1;
-    let ifBodyNodes = [];
-    let alternateNodes = [];
+    let ifBodyNodes = [], alternateNodes = [];
+    let localsBeforeBody = JSON.parse(JSON.stringify(locals));
     if(statement.lineBody.length > 0){
-        ifBodyNodes = handleBody(trueNextIndex, statement.lineBody, locals, [undefined]);
+        ifBodyNodes = handleBody(trueNextIndex, statement.lineBody, JSON.parse(JSON.stringify(locals)), [undefined]);
         falseNextIndex = testIndex + ifBodyNodes.length + 1;
     }
     if(statement.alternate){
-        alternateNodes = handleAlternate(falseNextIndex, statement.alternate, locals, [undefined]);
+        alternateNodes = handleAlternate(falseNextIndex, statement.alternate, JSON.parse(JSON.stringify(locals)), [undefined]);
         trueNextIndex = trueNextIndex === falseNextIndex ? testIndex + alternateNodes.length + 1 : trueNextIndex;
     }
-    const nodeTest = new NodeTest(testIndex, [statement.lineCondition], subtituteExpression(statement.lineCondition, JSON.parse(JSON.stringify(locals))), trueNextIndex, falseNextIndex, JSON.parse(JSON.stringify(locals)));
+    const nodeTest = new NodeTest(testIndex, [statement.lineCondition], subtituteExpression(statement.lineCondition, localsBeforeBody), trueNextIndex, falseNextIndex, localsBeforeBody);
     const exitIfIndex = testIndex + 1 + ifBodyNodes.length + alternateNodes.length;
-    const ifExitNode = new NodeBody(exitIfIndex, [''], exitIfIndex + 1, locals, 'circle');
+    const ifExitNode = new NodeBody(exitIfIndex, [''], exitIfIndex + 1, localsBeforeBody, 'circle');
     updateIfBranchesExit(exitIfIndex, ifBodyNodes, alternateNodes);
     const ifNextNodes = handleBody(exitIfIndex + 1, restBody, locals, nexts);
     return [nodeTest, ...ifBodyNodes, ...alternateNodes, ifExitNode, ...ifNextNodes];
