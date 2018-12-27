@@ -14,7 +14,7 @@ export const makeTestableFunction = (code) => {
 
 export const makeTestableEvaluatedNodeSystem = (code, parameters) => {
     const testableNodeSystem = makeTestableNodeSystem(code);
-    return getEvaluatedNodeSystem(testableNodeSystem, parameters);
+    return getEvaluatedNodeSystem(parameters.names, testableNodeSystem, parameters.values);
 };
 
 export const makeTestableNodeSystem = (code) => {
